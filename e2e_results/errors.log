@@ -1,0 +1,12 @@
+2026-08-15T21:15:34.701651+00:00 [ERROR] Preflight: Path does not exist: /home/user 
+2026-08-15T21:35:46.207641+00:00 [ERROR] Execution: Scan timed out after 600s 
+2026-08-15T21:35:46.410929+00:00 [ERROR] Execution: Scanner returned exit code -1 ogress] files=91 dirs=109 bytes=673184669 items=95 errors=0
+[Progress] files=91 dirs=109 bytes=673184669 items=95 errors=0
+[Progress] files=91 dirs=109 bytes=673184669 items=95 errors=0
+[Progress] files=91 dirs=109 bytes=673184669 items=95 errors=0
+[Progress] files=91 dirs=109 bytes=673184669 items=95 errors=0
+[Progress] files=91 dirs=109 bytes=673184669 items=95 errors=0
+[Progress] files=91 dirs=109 bytes=673184669 items=95 errors=0
+[Progress] files=91 dirs=109 bytes=673184669 items=95 errors=0
+2026-08-15T21:45:46.419669+00:00 [ERROR] Execution: Scan timed out after 600s 
+2026-08-15T21:55:46.778032+00:00 [ERROR] Execution: Scan timed out after 600s 

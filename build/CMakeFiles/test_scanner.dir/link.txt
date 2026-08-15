@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/test_scanner.dir/link.d CMakeFiles/test_scanner.dir/tests/test_scan_engine.cpp.o -o test_scanner  libscanner.a

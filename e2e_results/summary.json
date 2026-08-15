@@ -1,0 +1,73 @@
+{
+  "status": "FAIL",
+  "summary": {
+    "test_start_time": "2026-08-15T21:25:46.152189+00:00",
+    "test_end_time": "2026-08-15T21:55:46.919061+00:00",
+    "paths_scanned": [
+      "/home/bode",
+      "/home/user"
+    ],
+    "scanner_binary": "/home/bode/Documents/Dev/c/Scanner/scanner/build/scanner_cli",
+    "total_scans": 3,
+    "first_scan_duration_sec": 600.25719165802,
+    "peak_rss_mb": 4.46484375,
+    "avg_cpu_percent": 0.012242626599888702,
+    "total_files_discovered": 782278,
+    "total_bytes_discovered": 60362241760,
+    "csv_rows": 0,
+    "csv_duplicates": 0,
+    "csv_null_empty": 0,
+    "csv_validation_passed": false,
+    "error_counts": {
+      "critical": 0,
+      "error": 5,
+      "warning": 0
+    }
+  },
+  "phases": {
+    "preflight": "OK",
+    "discovery": "OK",
+    "execution": "FAILED",
+    "stress": "OK",
+    "validation": "FAILED",
+    "monitoring": "OK",
+    "error_analysis": "DONE"
+  },
+  "errors": [
+    {
+      "phase": "Preflight",
+      "severity": "ERROR",
+      "message": "Path does not exist: /home/user",
+      "timestamp": "2026-08-15T21:15:34.701651+00:00",
+      "details": ""
+    },
+    {
+      "phase": "Execution",
+      "severity": "ERROR",
+      "message": "Scan timed out after 600s",
+      "timestamp": "2026-08-15T21:35:46.207641+00:00",
+      "details": ""
+    },
+    {
+      "phase": "Execution",
+      "severity": "ERROR",
+      "message": "Scanner returned exit code -1",
+      "timestamp": "2026-08-15T21:35:46.410929+00:00",
+      "details": "ogress] files=91 dirs=109 bytes=673184669 items=95 errors=0\n[Progress] files=91 dirs=109 bytes=673184669 items=95 errors=0\n[Progress] files=91 dirs=109 bytes=673184669 items=95 errors=0\n[Progress] files=91 dirs=109 bytes=673184669 items=95 errors=0\n[Progress] files=91 dirs=109 bytes=673184669 items=95 errors=0\n[Progress] files=91 dirs=109 bytes=673184669 items=95 errors=0\n[Progress] files=91 dirs=109 bytes=673184669 items=95 errors=0\n[Progress] files=91 dirs=109 bytes=673184669 items=95 errors=0"
+    },
+    {
+      "phase": "Execution",
+      "severity": "ERROR",
+      "message": "Scan timed out after 600s",
+      "timestamp": "2026-08-15T21:45:46.419669+00:00",
+      "details": ""
+    },
+    {
+      "phase": "Execution",
+      "severity": "ERROR",
+      "message": "Scan timed out after 600s",
+      "timestamp": "2026-08-15T21:55:46.778032+00:00",
+      "details": ""
+    }
+  ]
+}

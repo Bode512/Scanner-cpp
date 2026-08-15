@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/benchmark.dir/link.d CMakeFiles/benchmark.dir/benchmarks/benchmark_scan.cpp.o -o benchmark  libscanner.a

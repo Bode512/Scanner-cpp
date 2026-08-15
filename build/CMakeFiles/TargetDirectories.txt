@@ -1,0 +1,6 @@
+/home/bode/Documents/Dev/c/Scanner/scanner/build/CMakeFiles/scanner.dir
+/home/bode/Documents/Dev/c/Scanner/scanner/build/CMakeFiles/test_scanner.dir
+/home/bode/Documents/Dev/c/Scanner/scanner/build/CMakeFiles/benchmark.dir
+/home/bode/Documents/Dev/c/Scanner/scanner/build/CMakeFiles/scanner_cli.dir
+/home/bode/Documents/Dev/c/Scanner/scanner/build/CMakeFiles/edit_cache.dir
+/home/bode/Documents/Dev/c/Scanner/scanner/build/CMakeFiles/rebuild_cache.dir
