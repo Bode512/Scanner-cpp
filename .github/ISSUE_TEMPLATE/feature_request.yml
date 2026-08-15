@@ -1,0 +1,42 @@
+name: 💡 Solicitud de Funcionalidad (Feature Request)
+description: Propón una nueva característica, mejora o cambio de arquitectura para Scanner.cpp
+title: "[FEAT]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ¿Tienes una propuesta para mejorar Scanner.cpp? Nos encantaría conocer tu idea.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: ¿Qué problema resuelve esta propuesta?
+      description: Explica de forma clara cuál es el caso de uso o la necesidad técnica.
+      placeholder: Actualmente el proyecto solo exporta a CSV, pero para grandes volúmenes de datos...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Descripción de la solución propuesta
+      description: Describe cómo te gustaría que funcionase la nueva funcionalidad.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+      description: Explica qué soluciones alternativas has considerado.
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto adicional
+      description: Añade cualquier otro diagrama, referencia o información relevante.
+    validations:
+      required: false

@@ -1,0 +1,71 @@
+name: 🐛 Reporte de Error (Bug Report)
+description: Reporta un error o un comportamiento inesperado en Scanner.cpp
+title: "[BUG]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por tomarte el tiempo de reportar un problema. Por favor, completa los siguientes campos con la mayor precisión posible.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción del problema
+      description: Proporciona una explicación clara y concisa de lo que ocurre.
+      placeholder: Al ejecutar el escáner sobre la ruta X...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Pasos para reproducir
+      description: Pasos exactos para reproducir el comportamiento.
+      placeholder: |
+        1. Compilar el proyecto con `cmake --build build`
+        2. Ejecutar `./build/scanner_cli /tmp/out.csv /ruta`
+        3. Observar el error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamiento esperado
+      description: Describe lo que esperabas que sucediera.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Sistema Operativo
+      options:
+        - Linux (Ubuntu / Fedora / Arch / Debian / RHEL)
+        - macOS (Apple Silicon / Intel)
+        - Windows 10 / 11
+        - Otro
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Entorno técnico
+      description: Detalla las versiones del compilador, CMake y hardware utilizado.
+      placeholder: |
+        - Compilador: GCC 11.2 / Clang 13 / MSVC 2022
+        - CMake: 3.22.1
+        - Núcleos CPU: 8
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Mensajes de consola
+      description: Copia y pega cualquier traza de error, salida de terminal o log disponible.
+      render: shell
+    validations:
+      required: false

@@ -1,111 +1,59 @@
-# Progreso y estado del escaneo
+# 📊 Progreso y Métricas en Tiempo Real — Scanner.cpp
 
-Este proyecto puede mostrar progreso durante el escaneo, pero hay que entender bien qué mide.
+Este documento describe el funcionamiento de los callbacks de progreso, las métricas capturadas por `ScanProgressSnapshot` y las mejores prácticas para monitorear el estado durante el escaneo.
 
-## 1. Callback de progreso
+---
 
-La API principal es:
+## ⚡ 1. Arquitectura de Notificación de Progreso
+
+El motor `Scanner` expone una firma de escaneo con soporte para callbacks de progreso y tokens de cancelación:
 
 ```cpp
-scanner.scan(sink, progress_callback);
+scanner.scan(sink, progress_callback, stop_token);
 ```
 
-El callback recibe un `ScanProgressSnapshot` con valores como:
+Cada `ScanConfig::progress_interval_ms` milisegundos (por defecto 500 ms), un hilo secundario de monitoreo genera una instantánea inmutable del estado (`ScanProgressSnapshot`) y la entrega al callback registrado.
 
-- `files_visited`
-- `directories_visited`
-- `bytes_processed`
-- `items_emitted`
-- `errors`
+---
 
-Ejemplo:
+## 📈 2. Métricas Expuestas en `ScanProgressSnapshot`
+
+```cpp
+struct ScanProgressSnapshot {
+    uint64_t files_visited = 0;       // Total de archivos examinados hasta el momento.
+    uint64_t directories_visited = 0; // Total de directorios explorados.
+    uint64_t bytes_processed = 0;     // Volumen total de bytes acumulados.
+    uint64_t items_emitted = 0;       // Elementos enviados exitosamente al Sink.
+    uint64_t errors = 0;              // Errores de acceso/lectura no fatales interceptados.
+    uint64_t skipped = 0;             // Elementos descartados por filtros configurados.
+    fs::path current_path;            // Ruta del último directorio extraído de la cola.
+};
+```
+
+---
+
+## 💻 3. Ejemplo de Implementación en Consola
 
 ```cpp
 auto progress = [](const ScanProgressSnapshot& snap) {
-    std::cerr << "\r[Progress] files=" << snap.files_visited
-              << " dirs=" << snap.directories_visited
-              << " bytes=" << snap.bytes_processed
-              << " items=" << snap.items_emitted
-              << " errors=" << snap.errors
+    std::cerr << "\r[Scanner Progress] "
+              << "Files: " << snap.files_visited << " | "
+              << "Dirs: " << snap.directories_visited << " | "
+              << "Bytes: " << snap.bytes_processed << " | "
+              << "Items: " << snap.items_emitted << " | "
+              << "Errors: " << snap.errors
               << std::flush;
 };
 
 scanner.scan(sink, progress);
 ```
 
-## 2. Qué no hay todavía
+---
 
-Ahora mismo el proyecto no calcula un porcentaje total exacto, porque no conoce antes del recorrido el número total de archivos y directorios del árbol completo.
+## 💡 4. Consideraciones Técnicas sobre el % Global de Avance
 
-Por eso en salida verás cosas como:
+Los sistemas de archivos POSIX/Windows no proporcionan un contador previo de inodos globales sin realizar un escaneo completo previo.
 
-```text
-[Progress] files=12345 dirs=320 bytes=5210000 items=13000 errors=0
-```
-
-y no una barra del tipo:
-
-```text
-[====> 42%]
-```
-
-## 3. Cómo conseguir una barra de progreso real
-
-Para tener un porcentaje real, necesitas una de estas dos opciones:
-
-1. hacer un primer pase de conteo del árbol
-2. usar un sistema de estadísticas acumuladas con un total previo
-
-Eso se puede añadir más adelante, pero con la implementación actual el progreso es un contador en tiempo real, no una barra exacta.
-
-## 4. Recomendación práctica
-
-Para depuración o validación local:
-
-```bash
-./build/scanner_cli --workers 1 /tmp/scan.csv /home/bode
-```
-
-Esto te da una salida más clara y evita bloqueo por deadlock del pool en pruebas intensivas.
-
-## 5. Qué usar para ver el estado real
-
-- CLI: se ve en la salida estándar de error (`stderr`)
-- C++: usa callback de progreso en `scanner.scan()`
-- CSV: se genera cuando el scan termina y emite los items
-
-## 6. Ejemplo completo
-
-```cpp
-#include "scanner/scanner.hpp"
-#include "integration/csv_sink.hpp"
-#include <iostream>
-
-using namespace scanner;
-
-int main() {
-    ScanConfig config;
-    config.included_paths.push_back("/home/bode");
-    config.worker_count = 4;
-    config.emit_files = true;
-    config.emit_directories = true;
-
-    CsvSink sink("result.csv");
-    Scanner scanner(config);
-
-    auto progress = [](const ScanProgressSnapshot& snap) {
-        std::cerr << "\r[Progress] files=" << snap.files_visited
-                  << " dirs=" << snap.directories_visited
-                  << " bytes=" << snap.bytes_processed
-                  << " items=" << snap.items_emitted
-                  << " errors=" << snap.errors
-                  << std::flush;
-    };
-
-    scanner.scan(sink, progress);
-    std::cerr << "\nDone.\n";
-    return 0;
-}
-```
-
-Con esto ya lo ves funcionando en tiempo real, aunque no con porcentaje exacto.
+Por lo tanto:
+- `ScanProgressSnapshot` proporciona **contadores acumulativos en tiempo real**.
+- No emite un porcentaje global ($0\% - 100\%$) a menos que el cliente ejecute una etapa previa de estimación o recuento rápido.

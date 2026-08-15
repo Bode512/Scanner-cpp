@@ -1,0 +1,50 @@
+# Build directory
+build/
+bin/
+lib/
+out/
+_build/
+
+# Compiled files
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
+a.out
+
+# CMake artifacts
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTESTFILE
+CTestTestfile.cmake
+
+# Generated CSV and Log files
+*.csv
+*.log
+home_bode_scan.csv
+result.csv
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Temporary files
+/tmp/   
+
+/e2e_results/

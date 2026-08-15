@@ -1,177 +1,138 @@
-# Uso del scanner
+# 📖 Guía de Uso Completa — Scanner.cpp
 
-Este documento explica cómo usar el escáner en modo CLI o desde código C++ y cómo activar la salida de progreso.
+Este documento describe todas las formas de utilizar **Scanner.cpp**, tanto a través de la herramienta CLI (`scanner_cli`) como mediante la API nativa C++20.
 
-## 1. Escaneo desde la línea de comandos
+---
 
-El proyecto incluye un ejecutable llamado `scanner_cli`.
+## 💻 1. Uso desde la Línea de Comandos (`scanner_cli`)
 
-### Sintaxis
-
-```bash
-./build/scanner_cli <output.csv> <path1> [path2 ...] [opciones]
-```
-
-### Ejemplos
-
-Escanear una sola carpeta:
+### Sintaxis General
 
 ```bash
-./build/scanner_cli /tmp/scan.csv /home/bode
+./build/scanner_cli <output.csv> <ruta1> [ruta2 ...] [opciones]
 ```
 
-Escanear varias carpetas:
+### Tabla de Opciones CLI
 
+| Opción | Descripción | Ejemplo |
+| :--- | :--- | :--- |
+| `--workers N` | Especifica el número de hilos de trabajo paralelos. | `--workers 8` |
+| `--no-files` | Omite la emisión de archivos individuales. | `--no-files` |
+| `--no-dirs` | Omite la emisión de directorios. | `--no-dirs` |
+| `--include-hidden` | Incluye archivos y carpetas ocultas. | `--include-hidden` |
+| `--follow-symlinks`| Sigue enlaces simbólicos (usar con precaución). | `--follow-symlinks` |
+| `--min-size BYTES` | Filtra archivos menores a `BYTES`. | `--min-size 1048576` |
+| `--timeout SEC` | Aborta automáticamente tras `SEC` segundos. | `--timeout 60` |
+| `--help` | Muestra el mensaje de ayuda y opciones. | `--help` |
+
+### Ejemplos de Comandos CLI
+
+#### Escaneo Estándar de Home
 ```bash
-./build/scanner_cli /tmp/multi.csv /home/bode /home/usuario
+./build/scanner_cli /tmp/home_report.csv /home/usuario
 ```
 
-Con número de workers:
-
+#### Escaneo Multi-ruta con 16 Hilos
 ```bash
-./build/scanner_cli --workers 8 /tmp/scan.csv /home/bode
+./build/scanner_cli /tmp/system_report.csv /var /opt /srv --workers 16
 ```
 
-Sin archivos, solo directorios:
-
+#### Buscar solo Archivos Grandes (> 500 MB)
 ```bash
-./build/scanner_cli --no-files /tmp/scan.csv /home/bode
+./build/scanner_cli /tmp/heavy_files.csv /home/usuario --min-size 524288000
 ```
 
-Con límite de tamaño mínimo:
+---
 
-```bash
-./build/scanner_cli --min-size 1048576 /tmp/scan.csv /home/bode
-```
+## 🧩 2. Uso desde Código C++20
 
-Con timeout:
-
-```bash
-./build/scanner_cli --timeout 30 /tmp/scan.csv /home/bode
-```
-
-## 2. Cómo funciona `included_paths`
-
-Cuando pasas una ruta al CLI, el programa la mete dentro de `ScanConfig::included_paths`.
-Esto hace que el scanner no recorra todo el sistema de archivos y se limite a esos directorios.
-
-### En C++
-
-```cpp
-ScanConfig config;
-config.included_paths.push_back("/home/bode");
-```
-
-Eso es lo importante para evitar escanear `/`, `/proc`, `/sys`, etc.
-
-## 3. Escaneo desde código C++
-
-### Ejemplo mínimo
+### Ejemplo A: Escaneo Básico con Exportación a CSV
 
 ```cpp
 #include "scanner/scanner.hpp"
 #include "integration/csv_sink.hpp"
-
-using namespace scanner;
-
-int main() {
-    ScanConfig config;
-    config.included_paths.push_back("/home/bode");
-    config.worker_count = 4;
-    config.emit_files = true;
-    config.emit_directories = true;
-
-    CsvSink sink("/tmp/result.csv");
-    Scanner scanner(config);
-    scanner.scan(sink);
-    return 0;
-}
-```
-
-### Ejemplo con progreso visible
-
-```cpp
-#include "scanner/scanner.hpp"
-#include "integration/csv_sink.hpp"
-#include <chrono>
 #include <iostream>
 
 using namespace scanner;
 
 int main() {
     ScanConfig config;
-    config.included_paths.push_back("/home/bode");
-    config.worker_count = 4;
+    config.included_paths.push_back("/home/usuario/Projects");
+    config.worker_count = 8;
     config.emit_files = true;
     config.emit_directories = true;
 
-    CsvSink sink("/tmp/result.csv");
-    Scanner scanner(config);
-
-    auto progress = [](const ScanProgressSnapshot& snap) {
-        std::cerr << "\r[Progress] files=" << snap.files_visited
-                  << " dirs=" << snap.directories_visited
-                  << " bytes=" << snap.bytes_processed
-                  << " items=" << snap.items_emitted
-                  << " errors=" << snap.errors
-                  << std::flush;
-    };
-
-    scanner.scan(sink, progress);
-    std::cerr << "\nScan complete.\n";
+    CsvSink sink("projects_scan.csv");
+    Scanner scanner_engine(config);
+    
+    scanner_engine.scan(sink);
+    std::cout << "Escaneo finalizado correctamente.\n";
     return 0;
 }
 ```
 
-## 4. Qué genera el CSV
+### Ejemplo B: Captura de Progreso en Tiempo Real
 
-La salida CSV contiene cabecera y filas con datos como:
+```cpp
+#include "scanner/scanner.hpp"
+#include "integration/csv_sink.hpp"
+#include <iostream>
 
-```csv
-path,type,logical_size,allocated_size,hardlink_count,is_symlink
-"/home/bode/file.txt",0,123,4096,1,false
-"/home/bode/docs",1,0,0,0,false
+using namespace scanner;
+
+int main() {
+    ScanConfig config;
+    config.included_paths.push_back("/home/usuario");
+    config.progress_interval_ms = 250; // Callback cada 250ms
+
+    CsvSink sink("home_scan.csv");
+    Scanner scanner_engine(config);
+
+    auto progress_handler = [](const ScanProgressSnapshot& snap) {
+        std::cerr << "\r[PROGRESO] Archivos: " << snap.files_visited
+                  << " | Carpetas: " << snap.directories_visited
+                  << " | Bytes: " << snap.bytes_processed
+                  << " | Errores: " << snap.errors << std::flush;
+    };
+
+    scanner_engine.scan(sink, progress_handler);
+    std::cerr << "\nProceso completado.\n";
+    return 0;
+}
 ```
 
-### Tipos
+### Ejemplo C: Custom Thread-Safe Sink (Procesamiento Personalizado)
 
-- `0` = File
-- `1` = Directory
-- `2` = Application
-- `3` = Volume
-- `4` = Symlink
-- `5` = Other
+```cpp
+#include "scanner/scanner.hpp"
+#include <mutex>
+#include <vector>
+#include <iostream>
 
-## 5. Progreso: qué puedes ver y qué no
+using namespace scanner;
 
-El escáner expone un callback de progreso con un `ScanProgressSnapshot` real. Eso permite ver:
+class MemorySink : public ScanResultSink {
+public:
+    void on_item(const ScanItem& item) override {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (item.type == ScanItemType::File) {
+            total_bytes_ += item.logical_size;
+            file_count_++;
+        }
+    }
 
-- archivos visitados
-- directorios visitados
-- bytes procesados
-- items emitidos
-- errores
+    void on_error(const ScanError& error) override {
+        std::lock_guard<std::mutex> lock(mutex_);
+        errors_count_++;
+    }
 
-Lo que no tiene ahora mismo es un total global conocido antes de empezar. Por eso no puede calcular un porcentaje exacto ni tiempo restante fiable sin un dato previo de total de archivos/directorios.
+    uint64_t get_total_bytes() const { return total_bytes_; }
+    uint64_t get_file_count() const { return file_count_; }
 
-Si quieres una barra porcentual real, tendrás que implementar una segunda etapa con:
-
-- total estimado de archivos
-- total estimado de directorios
-- o recuento previo del árbol
-
-## 6. Recomendaciones
-
-- Para una prueba rápida: usa `--workers 1`
-- Para carpetas grandes: usa rutas concretas y no `/`
-- Para depurar: usa `--timeout` y `--workers 1`
-- Para exportar: usa `scanner_cli` o `CsvSink`
-- Para ver progreso real: usa el callback `scanner.scan(sink, progress)`
-
-## 7. Ejecución real sobre tu home
-
-```bash
-./build/scanner_cli /home/bode/Documents/Dev/c/Scanner/scanner/home_bode_scan.csv /home/bode
+private:
+    mutable std::mutex mutex_;
+    uint64_t total_bytes_ = 0;
+    uint64_t file_count_ = 0;
+    uint64_t errors_count_ = 0;
+};
 ```
-
-Y luego puedes abrir el CSV generado con cualquier editor o con Excel/LibreOffice.

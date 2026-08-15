@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Preguntas y Discusiones Generales
+    url: https://github.com/Bode512/Scanner-cpp/discussions
+    about: Por favor, utiliza las discusiones de GitHub para preguntas sobre uso, arquitectura o asesoramiento.
+  - name: 🛡️ Reporte de Vulnerabilidad de Seguridad
+    url: https://github.com/Bode512/Scanner-cpp/security/advisories/new
+    about: Reporta vulnerabilidades de seguridad de forma privada.

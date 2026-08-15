@@ -1,0 +1,51 @@
+name: 🏗️ CI Build & Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    name: Build & Test (${{ matrix.os }} - ${{ matrix.build_type }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        build_type: [Release, Debug]
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup CMake & Ninja
+        uses: jvm-repo-rebuild/setup-ninja@v1
+        with:
+          version: '1.11.1'
+        continue-on-error: true
+
+      - name: 🔧 Configure CMake
+        run: >
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DBUILD_TESTING=ON
+          -DBUILD_BENCHMARKS=ON
+          -DBUILD_CLI=ON
+
+      - name: 🔨 Build Target Binaries
+        run: cmake --build build --config ${{ matrix.build_type }} --parallel
+
+      - name: 🧪 Run Unit Test Suite
+        run: ctest --test-dir build -C ${{ matrix.build_type }} --output-on-failure
+
+      - name: 🚀 Sanity Test CLI Output
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            ./build/${{ matrix.build_type }}/scanner_cli.exe --help || true
+          else
+            ./build/scanner_cli --help || true
+          fi
